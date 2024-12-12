@@ -214,8 +214,24 @@ export default class AccountsController extends Controller {
     // GET:account/remove/id
     remove(id) { // warning! this is not an API endpoint 
         // todo make sure that the requester has legitimity to delete ethier itself or its an admin
-        if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext.authorizations, this.requiredAuthorizations, id)) {
-            // todo
+        if (AccessControl.writeGrantedAdminOrOwner(this.HttpContext, this.requiredAuthorizations, id)) {
+            if (this.repository != null) {
+                let userToRemove = this.repository.findByField("Id", id);
+                if (userToRemove != null) {
+                    this.repository.remove(id);
+                    if (this.repository.model.state.isValid) {
+                        this.HttpContext.response.ok({ message: "User successfully removed." });
+                    } else {
+                        this.HttpContext.response.badRequest(this.repository.model.state.errors);
+                    }
+                } else {
+                    this.HttpContext.response.notFound({ message: "User not found." });
+                }
+            } else {
+                this.HttpContext.response.notImplemented();
+            }
+        } else {
+            this.HttpContext.response.unAuthorized("You do not have permission to perform this action.");
         }
     }
 }

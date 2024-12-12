@@ -85,7 +85,7 @@
         "Password": "asdasd",
         "Name": "Alex",
         "Avatar": "73c108d0-b43d-11ef-bec1-c56620e29d5c.png",
-        "Created": 1733968929,
+        "Created": 1734013417,
         "Authorizations": {
             "readAccess": 1,
             "writeAccess": 1
@@ -101,7 +101,7 @@
         "Created": 1733934039,
         "Authorizations": {
             "readAccess": 1,
-            "writeAccess": 0
+            "writeAccess": 1
         },
         "VerifyCode": "verified",
         "Id": "b80f75c0-b7d6-11ef-9ed2-d5df6d0c7711"

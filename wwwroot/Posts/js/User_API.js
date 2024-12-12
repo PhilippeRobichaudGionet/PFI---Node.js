@@ -1,7 +1,7 @@
 class User_API{
-    static API_URL(){return "http://localhost:5000/accounts/register";}
-    static API_URLModify(){return "http://localhost:5000/accounts/modify";}
+    static API_URL(){return "http://localhost:5000/accounts/";}
     static GetUser_Url(){return "http://localhost:5000/accounts/";}
+
     
     static async API_GetUsers() {
         return new Promise(resolve => {
@@ -21,7 +21,7 @@ class User_API{
         console.log(User);
         return new Promise(resolve => {
             $.ajax({
-                url: create ? (this.API_URL()) :  this.API_URLModify(),
+                url: create ? (this.API_URL() + "register") :  this.API_URL() + "modify",
                 type: create ? "POST" : "PUT",
                 contentType: 'application/json',
                 headers: {
@@ -37,8 +37,11 @@ class User_API{
     static async API_DeleteUser(id) {
         return new Promise(resolve => {
             $.ajax({
-                url: this.API_URL() + "/" + id,
-                type: "DELETE",
+                url: this.API_URL() + "remove/" + id,
+                type: "GET",
+                headers: {
+                    "Authorization": `Bearer ${ConnectedToken}`
+                },
                 success: () => { currentHttpError = ""; resolve(true); },
                 error: (xhr) => { currentHttpError = xhr.responseJSON.error_description; resolve(false /*xhr.status*/); }
             });
@@ -48,7 +51,7 @@ class User_API{
     static async BlockUser(id){
         $.ajax({
             type: "POST",
-            url: this.GetUser_Url() + "block" + id,
+            url: this.API_URL() + "block/" + id,
             success: function (response) {
                 
             }
@@ -57,7 +60,7 @@ class User_API{
     static async PromoteUser(id){
         $.ajax({
             type: "POST",
-            url: this.GetUser_Url() + "promote" + id,
+            url: this.API_URL() + "promote/" + id,
             success: function (response) {
                 
             }

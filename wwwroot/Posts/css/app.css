@@ -272,3 +272,23 @@ label {
     margin-right: auto;
     width: 50%;
 }
+#UserManager{
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+#SuppContainer{
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+#EraseBtn{
+    width: 50%;
+    border-radius: 5px;
+    background-color: red;
+}
+#CancelBtn{
+    width: 50%;
+    border-radius: 5px;
+    background-color: grey;
+}

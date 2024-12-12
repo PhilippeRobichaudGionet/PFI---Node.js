@@ -46,9 +46,17 @@ function DisconnectUser(){
         headers: {
             "Authorization": `Bearer ${ConnectedToken}`
         },
+        body: {
+            Id : ConnectedUser.Id
+        },
         success: function (response) {
             ConnectedToken = null
+            IsUserConnected = false;
+            ConnectedUser = null;
             console.log("Disconnect Successful " + response);
+        },
+        error: function (xhr){
+            console.log(xhr);
         }
     });
 }

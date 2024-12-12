@@ -46,8 +46,11 @@ async function Init_UI() {
         VerifyCode($("#id").val(), $("#VerifyValue").val());
     });
     //Not Connected
-    $("#CreateUserBtn").click(function (e) {
+    $("#CreateUserBtn").click(function () {
         showCreateModifUser();
+    });
+    $("#PostShower").click(function (){
+        showPosts();
     });
     installKeywordsOnkeyupEvent();
     postsPanel.hide();
@@ -122,7 +125,17 @@ function intialView() {
 async function showPosts(reset = false) {
     intialView();
     $("#viewTitle").text("Fil de nouvelles");
-    $("#ConnectionSection").hide();
+    $("#ConnectContainer").hide();    
+    periodic_Refresh_paused = false;
+    await postsPanel.show(reset);
+}
+async function ShowPostsNotConnected(reset = false){
+    intialView();
+    $("#viewTitle").text("Fil de nouvelles");
+    $("#ConnectContainer").hide();
+    let DDMenu = $("#DDMenu");
+    DDMenu.empty();
+    DDMenu.append(`<div class="dropdown-item menuItemLayout" id="ConnectionMenu"><i class="fa-brands fa-connectdevelop"></i>Connexion</div>`);
     periodic_Refresh_paused = false;
     await postsPanel.show(reset);
 }
@@ -143,7 +156,9 @@ function HideConnectionElem() {
     $("#searchKeys").hide();
 }
 function ShowConnection() {
-    HideConnectionElem();
+    $('#content > :not(#ConnectContainer)').hide();
+    $("#ConnectContainer").show();
+    HideConnectionElem()
 }
 function hidePosts() {
     postsPanel.hide();
@@ -213,16 +228,37 @@ function showAbout() {
 }
 async function showGestionUser() {
     $('#content > :not(#UserManager)').hide();
+    $("#UserManager").show();
     $("#viewTitle").text("Gestion des usagers");
     let listUser = await User_API.API_GetUsers();
     listUser.forEach(user => {
         $("#UserManager").append(`
+            <br>
             <div>
                 <img src="${user.Avatar}" alt="AvatarIMG" class="UserAvatarXSmall"/>${user.Name}
                 <i class="fa-solid fa-eraser" onclick="User_API.BlockUser(${user.id})"></i>
                 <i class="fa-solid fa-ban" onclick="User_API.PromoteUser(${user.id})"></i>
             </div>
         `);
+    });
+}
+function showSup(){
+    $('#content > :not(#SuppContainer)').hide();
+    $("#SuppContainer").show();
+
+    $("#EraseBtn").click(function (){
+        User_API.API_DeleteUser(ConnectedUser.Id);
+    });
+    $("#CancelBtn").click(function (){
+        showForm();
+        if (User == null) {
+            $("#viewTitle").text("Inscription");
+            renderUserForm();
+        }
+        else {
+            $("#viewTitle").text("Modification");
+            renderUserForm(ConnectedUser);
+        }
     });
 }
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
@@ -349,18 +385,19 @@ function updateDropDownMenu() {
                     <img src="${ConnectedUser.Avatar}" alt="AvatarIMG" class="UserAvatarXSmall"/>${ConnectedUser.Name}
                 </div>
             `);
+        DDMenu.append($(`<div class="dropdown-divider"></div> `));
     }
     //#endregion
-    
-    DDMenu.append($(`<div class="dropdown-divider"></div> `));
 
     //#region Profil is Admin
-    if (ConnectedUser.Authorizations.readAccess == 3 && ConnectedUser.Authorizations.writeAccess == 3) {
-        DDMenu.append($(`<div class="dropdown-item menuItemLayout" id="GestionUsers"><i class="fa-solid fa-users-rectangle"></i>Gestions des usagers</div>`));
-        DDMenu.append($(`<div class="dropdown-divider"></div>`));
+    if (ConnectedUser != null){
+        if (ConnectedUser.Authorizations.readAccess == 3 && ConnectedUser.Authorizations.writeAccess == 3) {
+            DDMenu.append($(`<div class="dropdown-item menuItemLayout" id="GestionUsers"><i class="fa-solid fa-users-rectangle"></i>Gestions des usagers</div>`));
+            DDMenu.append($(`<div class="dropdown-divider"></div>`));
+            DDMenu.append($(`<div class="dropdown-divider"></div> `));
+        }
     }
     //#endregion
-    DDMenu.append($(`<div class="dropdown-divider"></div> `));
 
     //#region réaction ou Modifcation de compte de User
     if (!IsUserConnected) {
@@ -377,9 +414,13 @@ function updateDropDownMenu() {
         `));
     }
     //#endregion
+    
     //#region Connexion - Déconnexion
     if (IsUserConnected) {
         DDMenu.append($(`<div class="dropdown-item menuItemLayout" id="DeconnectMenu"><i class="menuIcon fa fa-sign-in mx-2"></i>Déconnexion</div>`));
+    }
+    else{
+        DDMenu.append(`<div class="dropdown-item menuItemLayout" id="ConnectionMenu"><i class="fa-brands fa-connectdevelop"></i>Connexion</div>`);
     }
     //#endregion
 
@@ -436,8 +477,17 @@ function updateDropDownMenu() {
     });
     $("#DeconnectMenu").click(function (){
         DisconnectUser(ConnectedUser.Id)
-        IsUserConnected = false;
-        ConnectedUser = null;
+        ShowConnection();
+    });
+    $("#ConnectionMenu").click(function () {
+        let DDMenu = $("#DDMenu");
+        DDMenu.empty();
+        DDMenu.append(`<div class="dropdown-item menuItemLayout" id="PostShower">
+            <i class="menuIcon fa-solid fa-arrow-right"></i>Posts
+        </div>
+        <div class="dropdown-item menuItemLayout" id="aboutCmd">
+            <i class="menuIcon fa fa-info-circle mx-2"></i> À propos...
+        </div>`);
         ShowConnection();
     });
     //#endregion
@@ -702,8 +752,12 @@ function getFormData($form) {
 function renderUserForm(User = null) {
     $("#ConnectContainer").hide();
     let create = User == null;
-    if (create) User = newUser();
-    console.log(User);
+    let BtnSupprimer = "";
+    if (create)
+        User = newUser();
+    else
+        BtnSupprimer = `<Button id="SupBtn">Supprimer Profil</Button>`;
+    
     $("#form").show();
     $("#form").empty();
     $("#form").append(`
@@ -735,6 +789,7 @@ function renderUserForm(User = null) {
             <br>
             <input type="submit" value="Enregistrer" id="saveUser" class="btn btn-primary">
         </form>
+        ${BtnSupprimer}
     `);
     if (create) addConflictValidation("/accounts/conflict", "Email", "saveUser")
     initImageUploaders();
@@ -751,5 +806,8 @@ function renderUserForm(User = null) {
     });
     $('#cancel').on("click", async function () {
         await showPosts();
+    });
+    $("#SupBtn").click(function (){
+        showSup();
     });
 }
