@@ -1,0 +1,54 @@
+/*#region Body/Main Content */
+body{
+    width: 50%;
+    margin-right: auto;
+    margin-left: auto;
+    font-family: Arial, Helvetica, sans-serif;
+}
+#header{
+    border: 1px solid gray;
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: 70px auto 36px 30px 30px;
+    padding: 5px;
+}
+#Content{
+    border: 1px solid gray;
+    border-radius: 10px;
+    padding: 20px;
+    align-content:center;
+}
+/*#endregion*/
+
+/*#region HeaderContent */
+#title{
+    align-content: center;
+    margin: 5px;
+}
+.appLogo {height: 40px;}
+/*#endregion*/
+
+
+/*#region ContentCSS Connection*/
+input{display: block;}
+.ConnectionSection{
+    width: 50%;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#EmailInput, #MDPInput{
+    border-radius: 5px;
+    width:80%;
+    padding: 10px;
+}
+#SubmitInput{
+    border-radius: 5px;
+    width:87%;
+    height: 30px;
+    background-color: #056efd;
+    color:white;
+    vertical-align: middle;
+    cursor:pointer;
+}
+/*#endregion*/
