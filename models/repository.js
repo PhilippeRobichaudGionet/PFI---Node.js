@@ -32,12 +32,15 @@ export default class Repository {
         else null;
     }
     newETag() {
-        this.ETag = uuidv1();
+        this.ETag = this.count() + "-" + uuidv1();
         repositoryEtags[this.objectsName] = this.ETag;
     }
     objects() {
         if (this.objectsList == null) this.read();
         return this.objectsList;
+    }
+    count() {
+        return this.objects().length;
     }
     read() {
         this.objectsList = null;

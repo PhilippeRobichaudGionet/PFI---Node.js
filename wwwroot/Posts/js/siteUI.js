@@ -2,7 +2,7 @@
 ////// 2024
 //////////////////////////////
 
-const periodicRefreshPeriod = 10;
+const periodicRefreshPeriod = 2;
 const waitingGifTrigger = 2000;
 const minKeywordLenth = 3;
 const keywordsOnchangeDelay = 500;
@@ -10,6 +10,7 @@ const keywordsOnchangeDelay = 500;
 let categories = [];
 let selectedCategory = "";
 let currentETag = "";
+let currentPostsCount = -1;
 let periodic_Refresh_paused = false;
 let postsPanel;
 let itemLayout;
@@ -210,9 +211,10 @@ function showAbout() {
     $("#viewTitle").text("À propos...");
     $("#aboutContainer").show();
 }
-function showGestionUser() {
+async function showGestionUser() {
     $('#content > :not(#UserManager)').hide();
-    let listUser = User_API.API_GetUsers();
+    $("#viewTitle").text("Gestion des usagers");
+    let listUser = await User_API.API_GetUsers();
     listUser.forEach(user => {
         $("#UserManager").append(`
             <div>
@@ -228,12 +230,26 @@ function showGestionUser() {
 //////////////////////////// Posts rendering /////////////////////////////////////////////////////////////
 
 function start_Periodic_Refresh() {
+    $("#reloadPosts").addClass('white');
+    $("#reloadPosts").on('click', async function () {
+        $("#reloadPosts").addClass('white');
+        postsPanel.resetScrollPosition();
+        await showPosts();
+    })
     setInterval(async () => {
         if (!periodic_Refresh_paused) {
             let etag = await Posts_API.HEAD();
             if (currentETag != etag) {
+                            // the etag contain the number of model records in the following form
+            // xxx-etag
+            let postsCount = parseInt(etag.split("-")[0]);        
+                if (postsCount != currentPostsCount) {
+                    console.log("postsCount", postsCount)
+                    currentPostsCount = postsCount;
+                    $("#reloadPosts").removeClass('white');
+                } else
+                    await showPosts();
                 currentETag = etag;
-                await showPosts();
             }
         }
     },
@@ -250,13 +266,14 @@ async function renderPosts(queryString) {
             queryString += "&keywords=" + $("#searchKeys").val().replace(/[ ]/g, ',')
     }
     addWaitingGif();
-    let response = await Posts_API.Get(queryString);
+    let response = await Posts_API.GetQuery(queryString);
     if (!Posts_API.error) {
         currentETag = response.ETag;
+        currentPostsCount = parseInt(currentETag.split("-")[0]);
         let Posts = response.data;
         if (Posts.length > 0) {
             Posts.forEach(Post => {
-                postsPanel.itemsPanel.append(renderPost(Post));
+                postsPanel.append(renderPost(Post));
             });
         } else
             endOfData = true;
@@ -325,12 +342,6 @@ function updateDropDownMenu() {
     let DDMenu = $("#DDMenu");
     let selectClass = selectedCategory === "" ? "fa-check" : "fa-fw";
     DDMenu.empty();
-    //#region Profil is Admin
-    if (ConnectedUser.Authorizations.readAccess == 3 && ConnectedUser.Authorizations.writeAccess == 3) {
-        DDMenu.append($(`<div class="dropdown-item menuItemLayout" id="GestionUsers"><i class="fa-solid fa-users-rectangle"></i>Gestions des usagers</div>`));
-        DDMenu.append($(`<div class="dropdown-divider"></div>`));
-    }
-    //#endregion
     //#region Profil if Connected
     if (ConnectedUser != null) {
         DDMenu.append(`
@@ -340,7 +351,15 @@ function updateDropDownMenu() {
             `);
     }
     //#endregion
+    
+    DDMenu.append($(`<div class="dropdown-divider"></div> `));
 
+    //#region Profil is Admin
+    if (ConnectedUser.Authorizations.readAccess == 3 && ConnectedUser.Authorizations.writeAccess == 3) {
+        DDMenu.append($(`<div class="dropdown-item menuItemLayout" id="GestionUsers"><i class="fa-solid fa-users-rectangle"></i>Gestions des usagers</div>`));
+        DDMenu.append($(`<div class="dropdown-divider"></div>`));
+    }
+    //#endregion
     DDMenu.append($(`<div class="dropdown-divider"></div> `));
 
     //#region réaction ou Modifcation de compte de User

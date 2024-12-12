@@ -8,7 +8,10 @@ class User_API{
             $.ajax({
                 method:"get",
                 url: "http://localhost:5000/api/accounts",
-                success: users => { currentHttpError = ""; resolve(users); },
+                headers: {
+                    "Authorization": `Bearer ${ConnectedToken}`
+                },
+                success: users => resolve(users),
                 error: (xhr) => { console.log(xhr); resolve(null); }
             });
         });
@@ -25,7 +28,7 @@ class User_API{
                     "Authorization": `Bearer ${ConnectedToken}`
                 },
                 data: JSON.stringify(User),
-                success: (/*data*/) => { create ? $("#VerifyConnectInfo").text("Votre compte a été créé. Veuillez prendre votre courriels pour récupérer votre code de vérification qui vous sera demandé lors de votre prochaine connexion"): ""; resolve(true); },
+                success: (/*data*/) => { create ? $("#VerifyConnectInfo").text("Votre compte a été créé. Veuillez prendre votre courriels pour récupérer votre code de vérification qui vous sera demandé lors de votre prochaine connexion"):  resolve(true); },
                 error: (xhr) => {console.log(xhr.responseJSON.error_description); resolve(false /*xhr.status*/); }
             });
     });

@@ -39,7 +39,7 @@ function OnErrorConnect(ErrorMsg){
 //#endregion
 
 //#region Disconnect
-function DisconnectUser(userId){
+function DisconnectUser(){
     $.ajax({
         type: "get",
         url: "http://localhost:5000/accounts/logout/",
