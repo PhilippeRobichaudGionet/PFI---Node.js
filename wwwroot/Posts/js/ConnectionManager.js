@@ -1,5 +1,5 @@
-const Url = "http://localhost:5000/token";
-const UrlVerify = "http://localhost:5000/accounts/verify";
+const Url = "https://tin-stormy-peripheral.glitch.me/token";
+const UrlVerify = "https://tin-stormy-peripheral.glitch.me/accounts/verify";
 
 //#region Connection
 function TryConnect(Email,MDP){
@@ -25,7 +25,6 @@ function TryConnect(Email,MDP){
 async function OnSuccessConnect(User){
     ConnectedUser = User;
     IsUserConnected = true;
-    console.log(User);
     if (User.VerifyCode != "verified"){
         showVerifyCode();
     }

@@ -99,7 +99,7 @@ let conflict = false;
 function remoteValidation(url) {
     let result = new Promise(resolve => {
         $.ajax({
-            url: url,
+            url: "https://tin-stormy-peripheral.glitch.me" + url,
             contentType: 'application/json',
             success: result => { resolve(result); },
             error: () => { resolve(false); }
@@ -111,10 +111,11 @@ async function ConflictTestRequest(serviceUrl, fieldName) {
     let fieldControl = $('#' + fieldName);
     let testConflictURL = serviceUrl + "?" + fieldName + "=" + fieldControl.val() + "&Id=" + $("#Id").val();
     let result = await remoteValidation(testConflictURL);
+    console.log(result)
     if (result)
         fieldControl[0].setCustomValidity(fieldControl.attr("CustomErrorMessage"));
     else
-        fieldControl[0].setCustomValidity("");
+        fieldControl[0].setCustomValidity("Le courriel existe Déjà");
     fieldControl[0].reportValidity();
     conflict = result;
 }

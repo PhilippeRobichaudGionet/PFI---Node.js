@@ -1,13 +1,13 @@
 class User_API{
-    static API_URL(){return "http://localhost:5000/accounts/";}
-    static GetUser_Url(){return "http://localhost:5000/accounts/";}
+    static API_URL(){return "https://tin-stormy-peripheral.glitch.me/accounts/";}
+    static GetUser_Url(){return "https://tin-stormy-peripheral.glitch.me/accounts/";}
 
     
     static async API_GetUsers() {
         return new Promise(resolve => {
             $.ajax({
                 method:"get",
-                url: "http://localhost:5000/api/accounts",
+                url: this.API_URL(),
                 headers: {
                     "Authorization": `Bearer ${ConnectedToken}`
                 },
@@ -18,8 +18,6 @@ class User_API{
     }
 
     static async API_SaveUser(User, create) {
-        console.log(User);
-        return new Promise(resolve => {
             $.ajax({
                 url: create ? (this.API_URL() + "register") :  this.API_URL() + "modify",
                 type: create ? "POST" : "PUT",
@@ -29,13 +27,12 @@ class User_API{
                 },
                 data: JSON.stringify(User),
                 success: (/*data*/) => { create ? $("#VerifyConnectInfo").text("Votre compte a été créé. Veuillez prendre votre courriels pour récupérer votre code de vérification qui vous sera demandé lors de votre prochaine connexion"):  resolve(true); },
-                error: (xhr) => {console.log(xhr.responseJSON.error_description); resolve(false /*xhr.status*/); }
+                error: (xhr) => {$("#ConflictText").text(xhr[0]) }
             });
-    });
     }
 
     static async API_DeleteUser(id) {
-        return new Promise(resolve => {
+        console.log(ConnectedToken);
             $.ajax({
                 url: this.API_URL() + "remove/" + id,
                 type: "GET",
@@ -45,7 +42,6 @@ class User_API{
                 success: () => { currentHttpError = ""; resolve(true); },
                 error: (xhr) => { currentHttpError = xhr.responseJSON.error_description; resolve(false /*xhr.status*/); }
             });
-        });
     }
 
     static async BlockUser(id){

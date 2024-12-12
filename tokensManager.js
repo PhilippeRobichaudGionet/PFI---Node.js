@@ -93,6 +93,7 @@ export default
         return null;
     }
     static getUser(req) {
+        console.log(req.headers.authorization);
         if (req.headers["authorization"] != undefined) {
             // Extract bearer token from head of the http request
             let access_token = req.headers["authorization"].replace('Bearer ', '');

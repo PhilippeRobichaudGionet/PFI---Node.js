@@ -751,6 +751,7 @@ function getFormData($form) {
 
 function renderUserForm(User = null) {
     $("#ConnectContainer").hide();
+    $("#commit").hide();
     let create = User == null;
     let BtnSupprimer = "";
     if (create)
@@ -762,8 +763,8 @@ function renderUserForm(User = null) {
     $("#form").empty();
     $("#form").append(`
         <form class="form" id="postForm">
-            <input type="hidden" name="Id" value="${User.Id}"/>
-
+            <input type="hidden" name="Id" value="${User.Id}" id="Id"/>
+            <h1 id="ConflictText"></h1>
             <label for="Email" class="form-label">Adresse de couriel </label>
             <input class="form-control" name="Email" id="Email" placeholder="Courriel" required value="${User.Email}"/>
             <br>
